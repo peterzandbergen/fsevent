@@ -1,0 +1,7 @@
+# TODO: add user friendly image tag
+
+builds:
+  - id: fsevent
+    dir: .
+    main: ./cmd/fsevent
+
