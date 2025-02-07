@@ -28,7 +28,7 @@ func (opts *options) parseEnv(getenv func(string) string) {
 		opts.watchFile = v
 	}
 	if v := getenv("FSEVENT_LOG_FORMAT"); v != "" {
-		opts.watchFile = v
+		opts.logFormat = v
 	}
 }
 
@@ -50,7 +50,15 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 	defaultOptions.parseEnv(getenv)
 
 	// create a logger
-	logger := slog.New(newLogHandler(stderr, defaultOptions.logFormat)).With(slog.String("application", args[0]))
+	logger := slog.New(newLogHandler(stderr, defaultOptions.logFormat)).With(
+		slog.String("application", args[0]),
+		slog.String("hostname", func() string {
+			hn := "err-hostname"
+			if v, err := os.Hostname(); err == nil {
+				hn = v
+			}
+			return hn
+		}()))
 	slog.SetDefault(logger)
 
 	if len(args) < 2 {
@@ -89,7 +97,7 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 				}
 				logger.Info("something's changed",
 					slog.Group("event",
-						slog.String("", event.Name),
+						slog.String("name", event.Name),
 						slog.String("op", event.Op.String()),
 					),
 				)
