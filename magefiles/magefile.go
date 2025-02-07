@@ -8,10 +8,10 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-var Default = All
+// var Default = All
 
 func All() {
-	mg.Deps(BuildBBFSImageBD)
+	mg.Deps(BuildFSEventImageDocker)
 }
 
 func getGitShortHash() (string, error) {
@@ -35,9 +35,10 @@ func getAllTags() (string, error) {
 	}
 
 	t, err = gitGetLatestTag()
-	if err != nil {
-		return "", err
-	}
+	_ = err
+	// if err != nil {
+	// 	return "", err
+	// }
 	if t != "" {
 		tags = append(tags, t)
 	}
@@ -45,8 +46,8 @@ func getAllTags() (string, error) {
 	return strings.Join(tags, ","), nil
 }
 
-// BuildBBFSImageBD builds a container image and pushes it to cir-cn.chp.belastingdienst.nl/zandp06
-func BuildBBFSImageBD() error {
+// BuildFSEventImageBD builds a container image and pushes it to cir-cn.chp.belastingdienst.nl/zandp06
+func BuildFSEventImageDocker() error {
 	env := map[string]string{
 		"KO_DOCKER_REPO":      "docker.io/peterzandbergen",
 		"KO_DEFAULTBASEIMAGE": "cgr.dev/chainguard/static",
@@ -63,8 +64,8 @@ func BuildBBFSImageBD() error {
 	return nil
 }
 
-// BuildBBFSImageLocal builds a container image and pushes it to the local docker daemon
-func BuildBBFSImageLocal() error {
+// BuildFSEventImageLocal builds a container image and pushes it to the local docker daemon
+func BuildFSEventImageLocal() error {
 	imageTags, err := getAllTags()
 	if err != nil {
 		return err
@@ -77,17 +78,17 @@ func BuildBBFSImageLocal() error {
 	return nil
 }
 
-// BuildBBFSServerLocal build an exe in bin
-func BuildBBFSServerLocal() error {
-	err := sh.Run("go", "build", "-o", "./bin/fsevent", "github.com/myhops/bbfsserver/cmd/bbfsserver")
+// BuildFSEventServerLocal build an exe in bin
+func BuildFSEventServerLocal() error {
+	err := sh.Run("go", "build", "-o", "./bin/fsevent", "github.com/myhops/FSEventserver/cmd/FSEventserver")
 	if err != nil {
 		return fmt.Errorf("go build failed: %w", err)
 	}
 	return nil
 }
 
-func RunBBFSServer() error {
-	err := sh.Run("go", "run", "./cmd/bbfsserver/", "github.com/myhops/bbfsserver/cmd/bbfsserver")
+func RunFSEventServer() error {
+	err := sh.Run("go", "run", "./cmd/FSEventserver/", "github.com/myhops/FSEventserver/cmd/FSEventserver")
 	if err != nil {
 		return fmt.Errorf("go build failed: %w", err)
 	}
